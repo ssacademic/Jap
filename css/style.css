@@ -1,0 +1,212 @@
+/* नाम जप — styles
+   Three themes, each for a real lighting condition rather than for taste:
+   .t-dark  evening and indoors (default)
+   .t-day   daylight
+   .t-night pre-dawn / bedside — near-black, red-shifted, dim, to protect dark-adapted eyes
+*/
+
+:root, body.t-dark{
+  --bg:#07071c;--bgc:#0e0e30;--fg:#f0e6d0;--fgd:rgba(240,230,208,.5);
+  --ac:#ff9500;--acd:rgba(255,149,0,.2);--acg:rgba(255,149,0,.5);
+  --mb:rgba(7,7,26,.92);--mbd:rgba(255,149,0,.16);
+  --bb:rgba(255,149,0,.28);--bh:rgba(255,149,0,.14);
+  --ba:rgba(255,149,0,.28);--bad:rgba(255,149,0,.8);
+  --ib:rgba(255,255,255,.055);--ibrd:rgba(255,255,255,.12);
+  --tb:rgba(9,9,28,.96);--bar:rgba(255,149,0,.3);
+}
+body.t-day{
+  --bg:#fef6e4;--bgc:#fcefd0;--fg:#2d1100;--fgd:rgba(45,17,0,.5);
+  --ac:#c0390a;--acd:rgba(192,57,10,.14);--acg:rgba(192,57,10,.38);
+  --mb:rgba(255,249,237,.95);--mbd:rgba(192,57,10,.18);
+  --bb:rgba(192,57,10,.28);--bh:rgba(192,57,10,.1);
+  --ba:rgba(192,57,10,.18);--bad:rgba(192,57,10,.7);
+  --ib:rgba(0,0,0,.04);--ibrd:rgba(0,0,0,.12);
+  --tb:rgba(255,247,232,.98);--bar:rgba(192,57,10,.26);
+}
+body.t-night{
+  --bg:#000000;--bgc:#050403;--fg:#a8845a;--fgd:rgba(168,132,90,.42);
+  --ac:#b35900;--acd:rgba(179,89,0,.14);--acg:rgba(179,89,0,.3);
+  --mb:rgba(0,0,0,.95);--mbd:rgba(179,89,0,.14);
+  --bb:rgba(179,89,0,.24);--bh:rgba(179,89,0,.1);
+  --ba:rgba(179,89,0,.2);--bad:rgba(179,89,0,.6);
+  --ib:rgba(255,255,255,.03);--ibrd:rgba(255,255,255,.07);
+  --tb:rgba(0,0,0,.97);--bar:rgba(179,89,0,.26);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;height:100dvh;overflow:hidden;
+  font-family:'Noto Sans Devanagari',system-ui,sans-serif;
+  background:radial-gradient(ellipse 80% 70% at 50% 38%,var(--bgc),var(--bg));
+  color:var(--fg);transition:background .5s,color .4s;
+  -webkit-user-select:none;user-select:none;touch-action:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ---------- the naam ---------- */
+#naamText{
+  position:absolute;z-index:2;white-space:pre-line;
+  font-size:36px;line-height:1.25;cursor:grab;color:#ff9500;
+  font-family:'Tiro Devanagari Hindi','Noto Sans Devanagari',serif;
+  text-shadow:0 0 20px rgba(255,149,0,.55),0 0 45px rgba(255,149,0,.22);
+  animation:breath 4.5s ease-in-out infinite;
+  transition:left .7s cubic-bezier(.4,0,.2,1),top .7s cubic-bezier(.4,0,.2,1),
+             color .45s,text-shadow .45s;
+}
+#naamText.dragging{cursor:grabbing;transition:none!important}
+#naamText:focus-visible{outline:2px dashed var(--ac);outline-offset:8px;border-radius:4px}
+@keyframes breath{
+  0%,100%{filter:brightness(1) drop-shadow(0 0 6px rgba(255,149,0,.3))}
+  50%    {filter:brightness(1.22) drop-shadow(0 0 14px rgba(255,200,80,.5))}
+}
+body.t-night #naamText{animation:breath-dim 6s ease-in-out infinite}
+@keyframes breath-dim{
+  0%,100%{filter:brightness(.85)}
+  50%    {filter:brightness(1.02)}
+}
+
+/* ---------- mala hairline + readout ---------- */
+#mala{position:fixed;top:0;left:0;right:0;height:2px;z-index:20}
+#malaFill{height:100%;width:0;background:var(--ac);box-shadow:0 0 8px var(--acg);
+  transition:width .25s ease-out}
+#readout{position:fixed;top:8px;left:11px;z-index:20;font-size:12px;letter-spacing:.05em;
+  color:var(--fgd);font-variant-numeric:tabular-nums;pointer-events:none}
+#readout b{color:var(--ac);font-weight:600}
+#readout .done{color:var(--ac)}
+#wli{position:fixed;top:9px;right:11px;z-index:20;width:8px;height:8px;border-radius:50%;
+  background:rgba(128,128,128,.4);transition:background .4s,box-shadow .4s}
+#wli.on{background:#4caf50;box-shadow:0 0 6px rgba(76,175,80,.6)}
+body.t-night #wli.on{background:#2e6b31;box-shadow:none}
+
+#toast{position:fixed;left:50%;top:38px;transform:translate(-50%,-14px);z-index:40;
+  background:var(--tb);border:1px solid var(--mbd);color:var(--fg);font-size:12px;
+  padding:6px 13px;border-radius:14px;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;max-width:82vw;text-align:center;line-height:1.4}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- drawer ----------
+   #cw is a fixed full-width column. When the drawer is closed the panel is only
+   moved by transform, so its BOX still sits over the screen. Without the
+   pointer-events rules below, that invisible box swallows taps and no jap is
+   counted in the lower third of the screen. Hence: the shell never takes events;
+   only the tab strip and the open panel do.                                     */
+#cw{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;flex-direction:column;
+  padding-bottom:env(safe-area-inset-bottom);pointer-events:none}
+#mc{pointer-events:auto;background:var(--mb);
+  backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);
+  border-top:1px solid var(--mbd);padding:0 12px 9px;
+  transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .28s,visibility 0s;
+  max-height:60dvh;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain}
+#mc.closed{transform:translateY(110%);opacity:0;pointer-events:none;visibility:hidden;
+  transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .28s,visibility 0s .35s}
+#mc.grabbing{transition:none}
+
+/* grab handle — says "this is a sheet" and gives swipe-down something to hold */
+#grip{position:sticky;top:0;z-index:2;padding:8px 0 7px;margin:0 -12px 3px;
+  display:flex;justify-content:center;cursor:grab;touch-action:none;
+  background:linear-gradient(var(--mb) 70%,transparent)}
+#grip:active{cursor:grabbing}
+#grip span{width:34px;height:4px;border-radius:2px;background:var(--bb);display:block}
+#tabs{pointer-events:auto}
+
+.panel{display:none;flex-direction:column;gap:7px}
+.panel.on{display:flex}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+.lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fgd);
+  min-width:46px;flex-shrink:0}
+.div{height:1px;background:var(--mbd);margin:1px 0}
+.hint{font-size:10px;color:var(--fgd);line-height:1.45}
+
+#mc button,#mc select,#mc input[type=number],#mc textarea{
+  font-family:'Noto Sans Devanagari',system-ui,sans-serif;font-size:13px;
+  background:var(--ib);color:var(--fg);border:1px solid var(--bb);border-radius:7px;
+  padding:0 10px;min-height:38px;cursor:pointer;outline:none;
+  appearance:none;-webkit-appearance:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .18s,border-color .18s,box-shadow .18s}
+/* inline SVG icons inherit colour and button state */
+.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#sprite{display:none}
+.ic.dim{color:var(--fgd);width:15px;height:15px;margin-left:4px}
+#mc button.on .ic{stroke-width:2}
+#mc input,#mc textarea{-webkit-user-select:text;user-select:text;touch-action:auto}
+#mc input[type=number]{cursor:text}
+#mc button:hover,#mc select:hover{background:var(--bh);border-color:var(--ac)}
+#mc button:focus-visible,#mc select:focus-visible,
+#mc input:focus-visible,#mc textarea:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+#mc button.on{background:var(--ba);border-color:var(--bad);color:var(--ac);
+  box-shadow:0 0 9px var(--acg);font-weight:600}
+#mc button.danger{border-color:var(--ibrd);color:var(--fgd);font-size:11px}
+#mc button.danger:hover{color:var(--ac)}
+#mc select{padding-right:22px;background-repeat:no-repeat;background-position:right 7px center;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ff9500' opacity='.75'/%3E%3C/svg%3E")}
+body.t-day #mc select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c0390a' opacity='.75'/%3E%3C/svg%3E")}
+body.t-night #mc select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b35900' opacity='.75'/%3E%3C/svg%3E")}
+#mc select option,#mc select optgroup{background:var(--bg);color:var(--fg)}
+
+#it{flex:1;min-width:100px;resize:none;height:44px;line-height:1.4;padding:6px 10px;
+  border-color:var(--ibrd);font-size:13px;display:block}
+#it:focus{border-color:var(--ac);box-shadow:0 0 0 2px var(--acd)}
+#it::placeholder,#ti::placeholder{color:var(--fgd)}
+#ti{width:62px;text-align:center}
+.num{width:78px;text-align:center}
+.numw{display:flex;flex-direction:column;gap:2px;align-items:center}
+.numw span{font-size:9px;color:var(--fgd);letter-spacing:.06em;text-transform:uppercase}
+
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+  background:var(--bb);outline:none;cursor:pointer;flex:1;min-width:60px;border:none;
+  padding:0;touch-action:auto}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+  border-radius:50%;background:var(--ac);box-shadow:0 0 6px var(--acg);cursor:pointer;
+  transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+  background:var(--ac);border:none;box-shadow:0 0 6px var(--acg);cursor:pointer}
+.vb{font-size:11px;color:var(--ac);min-width:28px;text-align:right;flex-shrink:0;
+  font-variant-numeric:tabular-nums}
+#td{font-size:11px;color:var(--ac);min-width:34px;font-variant-numeric:tabular-nums}
+
+/* ---------- record panel ---------- */
+#figs{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.fig{display:flex;flex-direction:column;gap:1px}
+.fig i{font-style:normal;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--fgd)}
+.fig b{font-size:19px;font-weight:600;color:var(--ac);line-height:1.1;font-variant-numeric:tabular-nums}
+.fig b s{text-decoration:none;font-size:11px;color:var(--fgd);font-weight:400}
+#hist{display:flex;align-items:flex-end;gap:2px;height:46px;margin:2px 0}
+#hist{cursor:pointer}
+#hist div{flex:1;min-width:2px;background:var(--bar);border-radius:1px 1px 0 0;
+  transition:height .3s,background .2s}
+#hist div:hover{background:var(--ac)}
+#hist div.today{background:var(--ac);box-shadow:0 0 6px var(--acg)}
+#hist div.zero{background:var(--ibrd);height:1px!important}
+#histAx{display:flex;justify-content:space-between;font-size:9px;color:var(--fgd);letter-spacing:.05em}
+
+/* ---------- tab strip ---------- */
+#tabs{background:var(--tb);border-top:1px solid var(--mbd);display:flex;
+  justify-content:center;gap:2px;padding:3px 0}
+#tabs button{background:transparent;border:none;color:var(--fgd);font-size:13px;
+  letter-spacing:.06em;padding:0 20px;min-height:44px;cursor:pointer;border-radius:6px;
+  font-family:'Noto Sans Devanagari',system-ui,sans-serif;transition:color .2s,background .2s}
+#tabs button:hover{color:var(--ac)}
+#tabs button.sel{color:var(--ac);background:var(--acd)}
+#tabs button:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+@media (prefers-reduced-motion:reduce){
+  #naamText{animation:none;transition:color .45s,text-shadow .45s}
+  #malaFill,#hist div{transition:none}
+}
+
+/* ---------- tap ripple ----------
+   A spreading, fading ring from the point of contact. Compositor-only
+   (transform + opacity), removed on animation end, capped in number. */
+.ripple{position:fixed;z-index:1;width:26px;height:26px;border-radius:50%;
+  pointer-events:none;border:1.5px solid var(--ac);opacity:.42;
+  transform:translate(-50%,-50%) scale(.3);
+  animation:rip 750ms cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes rip{ to{ transform:translate(-50%,-50%) scale(11); opacity:0 } }
+body.t-night .ripple{opacity:.2}
+
+@media (prefers-reduced-motion:reduce){ .ripple{display:none} }
