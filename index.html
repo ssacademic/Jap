@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#07071c"/>
+<meta name="description" content="नाम जप — एक शांत जप गणक। सब कुछ आपके ही उपकरण में रहता है।"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="नाम जप"/>
+<title>नाम जप</title>
+
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="icon" href="icons/icon-192.png"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="t-dark">
+
+<!-- Icon sprite: 24x24 line icons stroked in currentColor, so they inherit theme
+     and button state. Emoji were platform-drawn and inconsistent. -->
+<svg id="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="i-bell"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 19a2 2 0 0 0 4 0"/></g>
+    <g id="i-buzz"><rect x="8" y="3" width="8" height="18" rx="2"/><path d="M4 9v6M20 9v6"/></g>
+    <g id="i-screen"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M9 21h6"/><circle cx="12" cy="10.5" r="2.5"/></g>
+    <g id="i-play"><path d="M7 4.5v15l12-7.5z"/></g>
+    <g id="i-pause"><path d="M9 4.5v15M15 4.5v15"/></g>
+    <g id="i-loop"><path d="M4 9h13a3 3 0 0 1 0 6h-1"/><path d="M7 6 4 9l3 3"/></g>
+    <g id="i-vol"><path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9.5a3.5 3.5 0 0 1 0 5"/></g>
+    <g id="i-clock"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g>
+    <g id="i-moon"><path d="M19 14.5A8 8 0 0 1 9.5 5a8 8 0 1 0 9.5 9.5z"/></g>
+    <g id="i-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></g>
+    <g id="i-star"><path d="M12 4.5l1.6 4.6 4.9.2-3.8 3 1.3 4.7L12 14.4 8 17l1.3-4.7-3.8-3 4.9-.2z"/></g>
+    <g id="i-move"><circle cx="7" cy="8" r="2.5"/><circle cx="17" cy="16" r="2.5"/><path d="M9.4 9.6 14.6 14.4" stroke-dasharray="2 2.5"/></g>
+    <g id="i-steady"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/></g>
+    <g id="i-ripple"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="9"/></g>
+  </defs>
+</svg>
+
+<div id="mala" aria-hidden="true"><div id="malaFill"></div></div>
+<div id="readout">माला <b>0</b> · <b>0</b></div>
+<div id="wli" title="स्क्रीन चालू"></div>
+<div id="toast" role="status"></div>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<div id="naamText" tabindex="0" role="button" aria-label="जप">जय श्री राम</div>
+
+<div id="cw">
+  <section id="mc" class="closed" aria-label="नियंत्रण">
+    <div id="grip" aria-hidden="true"><span></span></div>
+
+    <!-- ============ जप - session ============ -->
+    <div class="panel on" id="p-jap" role="tabpanel" aria-labelledby="tab-jap">
+      <div class="row">
+        <span class="lbl" id="lbl-naam">नाम</span>
+        <select id="ns" aria-label="नाम चुनें"></select>
+        <textarea id="it" rows="2" aria-label="अपना पाठ"></textarea>
+      </div>
+
+      <div class="row">
+        <span class="lbl" id="lbl-sankalp">संकल्प</span>
+        <div class="numw">
+          <input type="number" class="num" id="cTarget" min="0" step="1" aria-label="संकल्प माला"/>
+          <span id="lbl-target">माला</span>
+        </div>
+        <svg class="ic dim" aria-hidden="true"><use href="#i-clock"/></svg>
+        <input type="number" id="ti" min="1" aria-label="समय"/>
+        <span id="td"></span>
+      </div>
+
+      <div class="div"></div>
+
+      <div class="row">
+        <span class="lbl" id="lbl-speed">गति</span>
+        <button id="aub" onclick="toggleAuto()">ऑटो</button>
+        <input type="range" id="spd" min="300" max="10000" step="100" value="1000" aria-label="गति"/>
+        <span class="vb" id="spv">1.0s</span>
+      </div>
+      <div class="hint" id="hint-auto"></div>
+
+      <div class="div"></div>
+
+      <div class="row">
+        <span class="lbl" id="lbl-music">संगीत</span>
+        <select id="mus" aria-label="संगीत"></select>
+        <button id="ppb" onclick="togglePlayPause()" aria-label="बजाएँ"><svg class="ic" aria-hidden="true"><use id="ppIc" href="#i-play"/></svg></button>
+        <button id="lpb" onclick="toggleLoop()" aria-label="दोहराएँ"><svg class="ic" aria-hidden="true"><use href="#i-loop"/></svg></button>
+        <svg class="ic dim" aria-hidden="true"><use href="#i-vol"/></svg>
+        <input type="range" id="vol" min="0" max="1" step="0.05" value="1" aria-label="ध्वनि"/>
+      </div>
+    </div>
+
+    <!-- ============ लेखा - record ============ -->
+    <div class="panel" id="p-rec" role="tabpanel" aria-labelledby="tab-rec">
+      <div id="figs">
+        <div class="fig"><i id="f1">आज</i><b id="fToday">0</b></div>
+        <div class="fig"><i id="f2">समय</i><b id="fTime">0m</b></div>
+        <div class="fig"><i id="f3">दिन</i><b id="fStreak">0</b></div>
+        <div class="fig"><i id="f4">कुल जप</i><b id="fTotal">0</b></div>
+      </div>
+      <div id="hist" role="img" aria-label="पिछले 30 दिन"></div>
+      <div id="histAx"><span id="ax1">30 दिन पहले</span><span id="ax2">आज</span></div>
+
+      <div class="div"></div>
+
+      <div class="row">
+        <span class="lbl" id="lbl-edit">सुधार</span>
+        <div class="numw">
+          <input type="number" class="num" id="cToday" min="0" step="1" aria-label="आज"/>
+          <span id="lbl-today">आज</span>
+        </div>
+        <div class="numw">
+          <input type="number" class="num" id="cTotal" min="0" step="1" aria-label="कुल"/>
+          <span id="lbl-total">कुल</span>
+        </div>
+        <button class="danger" id="rsToday" onclick="resetToday()">आज मिटाएँ</button>
+        <button class="danger" id="rsAll" onclick="resetAll()">सब मिटाएँ</button>
+      </div>
+      <div class="hint" id="hint-edit">गिनती सीधे यहाँ बदली जा सकती है।</div>
+    </div>
+
+    <!-- ============ व्यवस्था - settings ============ -->
+    <div class="panel" id="p-set" role="tabpanel" aria-labelledby="tab-set">
+      <div class="row">
+        <span class="lbl" id="lbl-roop">रूप</span>
+        <select id="fs" aria-label="अक्षर">
+          <option value="Tiro Devanagari Hindi">Tiro</option>
+          <option value="Noto Sans Devanagari">Sans</option>
+          <option value="Noto Serif Devanagari">Serif</option>
+        </select>
+        <button onclick="changeSize(-1)" aria-label="छोटा">A&#8722;</button>
+        <button onclick="changeSize(1)" aria-label="बड़ा">A+</button>
+        <button id="thb" onclick="cycleTheme()"><svg class="ic" aria-hidden="true"><use id="thIc" href="#i-moon"/></svg> <span id="lbl-theme">रात</span></button>
+        <button id="lgb" onclick="toggleLang()" aria-label="भाषा">हिं</button>
+      </div>
+
+      <div class="row">
+        <span class="lbl" id="lbl-touch">स्पर्श</span>
+        <button id="mvb" onclick="toggleMove()"><svg class="ic" aria-hidden="true"><use id="mvIc" href="#i-move"/></svg> <span id="lbl-move">चंचल</span></button>
+        <button id="rpb" onclick="toggleRipple()"><svg class="ic" aria-hidden="true"><use href="#i-ripple"/></svg> <span id="lbl-ripple">तरंग</span></button>
+      </div>
+
+      <div class="row">
+        <span class="lbl" id="lbl-sound">संकेत</span>
+        <button id="blb" onclick="toggleBell()"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg> <span id="lbl-bell">घंटी</span></button>
+        <button id="hpb" onclick="toggleHaptic()"><svg class="ic" aria-hidden="true"><use href="#i-buzz"/></svg> <span id="lbl-haptic">कंपन</span></button>
+        <button id="wlb" onclick="toggleWakeLock()"><svg class="ic" aria-hidden="true"><use href="#i-screen"/></svg> <span id="lbl-wake">स्क्रीन</span></button>
+      </div>
+
+      <div class="row" id="installRow" style="display:none">
+        <span class="lbl" id="lbl-install">स्थापित</span>
+        <button id="instb" onclick="installApp()">होम स्क्रीन पर जोड़ें</button>
+      </div>
+
+      <div class="div"></div>
+      <div class="hint" id="foot"></div>
+    </div>
+
+  </section>
+
+  <div id="tabs" role="tablist">
+    <button data-p="jap" class="sel" id="tab-jap" role="tab" aria-selected="true"  aria-controls="p-jap">जप</button>
+    <button data-p="rec"            id="tab-rec" role="tab" aria-selected="false" aria-controls="p-rec">लेखा</button>
+    <button data-p="set"            id="tab-set" role="tab" aria-selected="false" aria-controls="p-set">व्यवस्था</button>
+  </div>
+</div>
+
+<audio id="aud"></audio>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
