@@ -69,7 +69,7 @@
           <input type="number" class="num" id="cTarget" min="0" step="1" aria-label="संकल्प माला"/>
           <span id="lbl-target">माला</span>
         </div>
-        <svg class="ic dim" aria-hidden="true"><use href="#i-clock"/></svg>
+        <svg class="ic dim" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-clock"/></svg>
         <input type="number" id="ti" min="1" aria-label="समय"/>
         <span id="td"></span>
       </div>
@@ -89,9 +89,9 @@
       <div class="row">
         <span class="lbl" id="lbl-music">संगीत</span>
         <select id="mus" aria-label="संगीत"></select>
-        <button id="ppb" onclick="togglePlayPause()" aria-label="बजाएँ"><svg class="ic" aria-hidden="true"><use id="ppIc" href="#i-play"/></svg></button>
-        <button id="lpb" onclick="toggleLoop()" aria-label="दोहराएँ"><svg class="ic" aria-hidden="true"><use href="#i-loop"/></svg></button>
-        <svg class="ic dim" aria-hidden="true"><use href="#i-vol"/></svg>
+        <button id="ppb" onclick="togglePlayPause()" aria-label="बजाएँ"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use id="ppIc" href="#i-play"/></svg></button>
+        <button id="lpb" onclick="toggleLoop()" aria-label="दोहराएँ"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-loop"/></svg></button>
+        <svg class="ic dim" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-vol"/></svg>
         <input type="range" id="vol" min="0" max="1" step="0.05" value="1" aria-label="ध्वनि"/>
       </div>
     </div>
@@ -136,21 +136,21 @@
         </select>
         <button onclick="changeSize(-1)" aria-label="छोटा">A&#8722;</button>
         <button onclick="changeSize(1)" aria-label="बड़ा">A+</button>
-        <button id="thb" onclick="cycleTheme()"><svg class="ic" aria-hidden="true"><use id="thIc" href="#i-moon"/></svg> <span id="lbl-theme">रात</span></button>
+        <button id="thb" onclick="cycleTheme()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use id="thIc" href="#i-moon"/></svg> <span id="lbl-theme">रात</span></button>
         <button id="lgb" onclick="toggleLang()" aria-label="भाषा">हिं</button>
       </div>
 
       <div class="row">
         <span class="lbl" id="lbl-touch">स्पर्श</span>
-        <button id="mvb" onclick="toggleMove()"><svg class="ic" aria-hidden="true"><use id="mvIc" href="#i-move"/></svg> <span id="lbl-move">चंचल</span></button>
-        <button id="rpb" onclick="toggleRipple()"><svg class="ic" aria-hidden="true"><use href="#i-ripple"/></svg> <span id="lbl-ripple">तरंग</span></button>
+        <button id="mvb" onclick="toggleMove()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use id="mvIc" href="#i-move"/></svg> <span id="lbl-move">चंचल</span></button>
+        <button id="rpb" onclick="toggleRipple()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ripple"/></svg> <span id="lbl-ripple">तरंग</span></button>
       </div>
 
       <div class="row">
         <span class="lbl" id="lbl-sound">संकेत</span>
-        <button id="blb" onclick="toggleBell()"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg> <span id="lbl-bell">घंटी</span></button>
-        <button id="hpb" onclick="toggleHaptic()"><svg class="ic" aria-hidden="true"><use href="#i-buzz"/></svg> <span id="lbl-haptic">कंपन</span></button>
-        <button id="wlb" onclick="toggleWakeLock()"><svg class="ic" aria-hidden="true"><use href="#i-screen"/></svg> <span id="lbl-wake">स्क्रीन</span></button>
+        <button id="blb" onclick="toggleBell()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bell"/></svg> <span id="lbl-bell">घंटी</span></button>
+        <button id="hpb" onclick="toggleHaptic()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-buzz"/></svg> <span id="lbl-haptic">कंपन</span></button>
+        <button id="wlb" onclick="toggleWakeLock()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-screen"/></svg> <span id="lbl-wake">स्क्रीन</span></button>
       </div>
 
       <div class="row" id="installRow" style="display:none">
