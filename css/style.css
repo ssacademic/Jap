@@ -122,8 +122,12 @@ body.t-night #wli.on{background:#2e6b31;box-shadow:none}
   background:var(--ib);color:var(--fg);border:1px solid var(--bb);border-radius:7px;
   padding:0 10px;min-height:38px;cursor:pointer;outline:none;
   appearance:none;-webkit-appearance:none;
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
   transition:background .18s,border-color .18s,box-shadow .18s}
+/* Flex is for buttons only. A native <select> with display:inline-flex repaints
+   its background per flex line in Chrome, which tiles the caret image into a
+   field of triangles. Leave form controls as the browser lays them out. */
+#mc button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#mc select,#mc input[type=number]{line-height:1.2}
 /* inline SVG icons inherit colour and button state */
 .ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;
   stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -202,11 +206,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
 /* ---------- tap ripple ----------
    A spreading, fading ring from the point of contact. Compositor-only
    (transform + opacity), removed on animation end, capped in number. */
-.ripple{position:fixed;z-index:1;width:26px;height:26px;border-radius:50%;
-  pointer-events:none;border:1.5px solid var(--ac);opacity:.42;
-  transform:translate(-50%,-50%) scale(.3);
-  animation:rip 750ms cubic-bezier(.2,.7,.4,1) forwards}
-@keyframes rip{ to{ transform:translate(-50%,-50%) scale(11); opacity:0 } }
-body.t-night .ripple{opacity:.2}
+#rlayer{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ripple{position:absolute;width:26px;height:26px;border-radius:50%;
+  pointer-events:none;border:1.5px solid var(--ac);opacity:0;
+  transform:translate(-50%,-50%) scale(.25)}
 
 @media (prefers-reduced-motion:reduce){ .ripple{display:none} }
