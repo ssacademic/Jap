@@ -133,18 +133,32 @@ function toggleHaptic(){ S.haptic = !S.haptic; hpb.classList.toggle('on', S.hapt
 
 /* ================= tap ripple ================= */
 const ripples = [];
+const rlayer = document.createElement('div');
+rlayer.id = 'rlayer'; rlayer.setAttribute('aria-hidden','true');
+document.body.appendChild(rlayer);
+
 function ripple(x, y){
   if(!S.ripple || reduceMotion) return;
   const el = document.createElement('div');
   el.className = 'ripple';
   el.style.left = x+'px'; el.style.top = y+'px';
-  document.body.appendChild(el);
+  rlayer.appendChild(el);
   ripples.push(el);
   while(ripples.length > CFG.RIPPLE_MAX) ripples.shift().remove();
-  el.addEventListener('animationend', () => {
-    const i = ripples.indexOf(el); if(i > -1) ripples.splice(i,1);
-    el.remove();
-  }, {once:true});
+
+  const drop = () => { const i = ripples.indexOf(el); if(i > -1) ripples.splice(i,1); el.remove(); };
+  const peak = S.theme === 'night' ? 0.20 : 0.45;
+  // Driven from script rather than a CSS keyframe: no dependency on stylesheet
+  // resolution, and a promise that guarantees the node is cleaned up.
+  if(el.animate){
+    const a = el.animate(
+      [{ transform:'translate(-50%,-50%) scale(0.25)', opacity: peak },
+       { transform:'translate(-50%,-50%) scale(11)',   opacity: 0 }],
+      { duration: 750, easing:'cubic-bezier(.2,.7,.4,1)', fill:'forwards' });
+    if(a.finished) a.finished.then(drop, drop); else setTimeout(drop, 800);
+  }else{
+    setTimeout(drop, 60);
+  }
 }
 
 /* ================= render ================= */
@@ -619,6 +633,12 @@ if(location.search.indexOf('test=1') > -1){
   const before = S.total; armAuto(); moveRnd(); colorRnd();
   ok('auto movement counts nothing', S.total === before);
   ok('ripples stay capped', ripples.length <= CFG.RIPPLE_MAX);
+  const rWas = S.ripple; S.ripple = true;
+  const rBefore = rlayer.children.length; ripple(50, 50);
+  ok('a ripple actually mounts', rlayer.children.length === rBefore + 1);
+  S.ripple = rWas;
+  ok('icons carry a viewBox', [...document.querySelectorAll('svg.ic')].every(e => e.getAttribute('viewBox')));
+  ok('selects are not flexed', !getComputedStyle($('ns')).display.includes('flex'));
   S = JSON.parse(backup); flush(); render();
   console.log('%c'+out.join('\n'), 'font-family:monospace');
   toast(out.some(r => r[0]==='F') ? 'Self-check FAILED — see console'
